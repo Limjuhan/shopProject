@@ -3,8 +3,6 @@ package kr.gdu.controller;
 import java.security.SecureRandom;
 import java.util.List;
 
-import javax.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
@@ -17,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import kr.gdu.exception.ShopException;
 import kr.gdu.logic.Sale;
 import kr.gdu.logic.User;
@@ -27,18 +26,33 @@ import kr.gdu.service.UserService;
 @RequestMapping("user")
 public class UserController {
 
+    private final BoardController boardController;
+
 	@Autowired
 	private UserService service;
 	
 	@Autowired
 	private ShopService shopService;
 
+
+    UserController(BoardController boardController) {
+        this.boardController = boardController;
+    }
+
 	
 	@GetMapping("*") // GET 방식 모든 요청시 호출
-	public ModelAndView form() {
-		ModelAndView mav = new ModelAndView();
+	public ModelAndView form(HttpSession session) {
+
+		User loginUser = (User) session.getAttribute("loginUser");
+
+	    if (loginUser != null && StringUtils.hasText(loginUser.getUserid())) {
+	        String userId = loginUser.getUserid();
+	        return new ModelAndView("redirect:/user/mypage?userid=" + userId);
+	    }
+		
+	    ModelAndView mav = new ModelAndView();
 		mav.addObject(new User());
-		return mav; // url과 연동 된 뷰를 호출
+		return mav; 
 	}
 	
 	@PostMapping("join")
@@ -120,6 +134,7 @@ public class UserController {
 	 */
 	@RequestMapping("mypage")
 	public ModelAndView idCheckMypage(String userid, HttpSession session) {
+		System.out.println("userid: " + userid);
 		ModelAndView mav = new ModelAndView();
 		User user = service.selectUser(userid);
 		// Sale : db정보, 고객정보, 주문상품정보

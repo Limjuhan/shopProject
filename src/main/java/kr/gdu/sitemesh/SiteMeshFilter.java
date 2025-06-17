@@ -14,7 +14,8 @@ public class SiteMeshFilter extends ConfigurableSiteMeshFilter{
 		builder.addDecoratorPath("/*", "layout/gdulayout.jsp")
 		.addExcludedPath("/user/login")
 		.addExcludedPath("/user/idsearch*")
-		.addExcludedPath("/user/pwsearch*");
+		.addExcludedPath("/user/pwsearch*")
+		.addExcludedPath("/ajax/*");
 	}
 	
 	
